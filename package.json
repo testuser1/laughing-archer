@@ -7,7 +7,10 @@
   },
   "dependencies": {
     "express": "3.0.3",
-    "ejs": "*"
+    "ejs": "*",
+    "speakeasy-nlp": "*",
+    "nlp-mode": "git://github.com/testuser1/nlp-node.git#master",
+    "console-trace": "*"
   }
   ,"scripts":
   {

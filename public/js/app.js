@@ -1,5 +1,11 @@
 
+function addCommand() {
+	
+}
+
 $(function(){
 	
-	console.log('Hello world');	
+	$('#search').on('keydown', function(e){
+
+	});
 });
