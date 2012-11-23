@@ -1,0 +1,15 @@
+{ "name": "laughing-archer"
+, "version": "0.0.1"
+, "engines": ["node >= 0.6.0"]
+, "main": "app.js"
+, "dependencies":
+  { 
+  },
+  "devDependencies":
+  { 
+  }
+, "scripts":
+  { 
+  }
+}
+
