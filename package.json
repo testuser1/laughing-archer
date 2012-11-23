@@ -1,16 +1,16 @@
-{ "name": "laughing-archer"
-, "version": "0.0.1"
-, "engines": ["node >= 0.6.0"]
-, "main": "app.js"
-, "dependencies":
-  { 
+{
+  "name": "laughing-archer",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
   },
-  "devDependencies":
-  { 
+  "dependencies": {
+    "express": "3.0.3",
+    "ejs": "*"
   }
-, "scripts":
+  ,"scripts":
   {
-	"start": "node app.js" 
+    "start": "node app.js"
   }
 }
-
