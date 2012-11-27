@@ -28,8 +28,8 @@ var conf = {
       , apiSecret: 'Pdx7DCoJRdAk0ai3joXsslZvK1DPCQwsLn-T17Opkae22ZYDP5R7gmAoFes9TNHy'
     }
   , google: {
-        clientId: '3335216477.apps.googleusercontent.com'
-      , clientSecret: 'PJMW_uP39nogdu0WpBuqMhtB'
+        clientId: '923743298413.apps.googleusercontent.com'
+      , clientSecret: 'rtHOKnBjmfyv0ZMNPCo0HUYV'
     }
   , googlehybrid: {
         consumerKey: 'YOUR CONSUMER KEY HERE'
@@ -120,6 +120,9 @@ var conf = {
 
 
 module.exports = function enableEveryAuth(everyauth) {
+
+	everyauth.debug = true;
+	
 	var usersById = {};
 	var nextUserId = 0;
 
