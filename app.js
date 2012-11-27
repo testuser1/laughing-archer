@@ -24,6 +24,7 @@ app.configure(function(){
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
   init_everyauth(everyauth);
+  app.set('everyauth', everyauth);
   app.use(everyauth.middleware(app));
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
@@ -39,3 +40,5 @@ app.get('/users', user.list);
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+module.exports = app;

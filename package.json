@@ -9,7 +9,8 @@
     "express": "3.0.3",
     "ejs": "*",
     "console-trace": "*",
-    "everyauth": "git://github.com/bnoguchi/everyauth.git#express3"
+    "everyauth": "git://github.com/bnoguchi/everyauth.git#express3",
+    "request": "*"
   },
   "might-be-useful-later": {
     "speakeasy-nlp": "*",
