@@ -11,6 +11,9 @@
  - simple url based commands like yubnub
 
  - don't repeat same preview
+
+ - APIs http://www.programmableweb.com/apis/directory
+ - yahoo pipes http://pipes.yahoo.com/pipes/search?r=tag:business
  */
 
 
@@ -53,8 +56,10 @@ function preview() {
 	if (lastSuggest.length == 0) return;
 	var cmd = lastSuggest[0];
 	var command = names[cmd.name];
+	var params = words.slice(1);
+	params.unshift($('#preview')[0]);
 
-	command.preview($('#preview')[0], words[1]);
+	command.preview.apply(command, params);
 }
 
 var delayed_timeout, delay = 500;
@@ -84,9 +89,11 @@ $(function(){
 		var key;
 		if (e.keyCode) key = e.keyCode;
     	else if (e.which) key = e.which;
-    	console.log(e, /[^A-Za-z0-9 ]/.test(String.fromCharCode(key)));
+    	
 		if (!/[^A-Za-z0-9 ]/.test(String.fromCharCode(key)) )
 			delayed(preview);
+
+		if (key == 13) exec();
 	});
 });
 
@@ -149,10 +156,10 @@ CmdUtils.CreateCommand({
 		return mapUrl + jQuery.param( params );
 	},
 	
-	preview: function( pblock, params ) {
-		if (!params || params.length == 0) return;
+	preview: function( pblock, address ) {
+		if (!address) return;
 		var msg = "Inserts a map of your current location: <br/>" +
-							"<img src='"+this._getMapUrl(params)+"'/>";
+							"<img src='"+this._getMapUrl(address)+"'/>";
 		pblock.innerHTML = msg;//_(msg, {url: this._getMapUrl()});
 	},
 	
@@ -162,6 +169,36 @@ CmdUtils.CreateCommand({
 		})
 	}
 });
+
+CmdUtils.CreateCommand({
+	names: ["google", "search", "g"],
+	
+	preview: function( pblock, query ) {
+		console.log('google', arguments);
+		if (!query) return;
+
+		var q = []; 
+		for (var i=1; i<arguments.length; i++) q.push(arguments[i]);
+		q = q.join(' ');
+		var url = "http://ajax.googleapis.com/ajax/services/search/web";
+    	var params = {v: "1.0", q: q, rsz: "big", callback: 'test' };
+
+    	$.get(url, params, function success(response) {
+    		pblock.innerHTML = '<pre>'+JSON.stringify(response, false, 2)+'</pre>';//_(msg, {url: this._getMapUrl()});
+    	}, 'jsonp');
+	},
+	
+	execute: function(data) {
+		var url = "http://www.google.com/search?q="+data;
+		$('#hidden').html('<a id="new-window" target="_blank" href="'+url+'"></a>');
+		$('#new-window').click();
+	}
+});
+
+// MS translate API
+// http://api.microsofttranslator.com/V2/Ajax.svc/Translate?text=Hello%20world&from=en&to=fi&appId=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA9
+// Freebase search
+//https://www.googleapis.com/freebase/v1/search?query=nirvana&indent=true&callback=test
 
 // https://github.com/joshaven/string_score/blob/master/tests/comparisons/jaro-winkler.js
 jaro = function(str1, str2){
@@ -196,6 +233,7 @@ jaroWinkler = function(str1, str2, p){
 	for(var i=0; i<4; i++) { /* find length of prefix match (max 4) */
 		if(str1[i]==str2[i]){ l++; } else { break; } 
 	}
+	if (str1.length == str2.length == 1 && str1 == str2) return 1;
 	
 	return dj+(l*p*(1-dj));
 };

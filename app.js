@@ -7,7 +7,9 @@ var express = require('express')
   , routes = require('./routes')
   , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , everyauth = require('everyauth')
+  , init_everyauth = require('./init-everyauth.js');
 
 var app = express();
 
@@ -21,6 +23,8 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(express.cookieParser('your secret here'));
   app.use(express.session());
+  init_everyauth(everyauth);
+  app.use(everyauth.middleware(app));
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
 });

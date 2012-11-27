@@ -8,12 +8,16 @@
   "dependencies": {
     "express": "3.0.3",
     "ejs": "*",
+    "console-trace": "*",
+    "everyauth": "git://github.com/bnoguchi/everyauth.git#express3"
+  },
+  "might-be-useful-later": {
     "speakeasy-nlp": "*",
     "nlp-mode": "git://github.com/testuser1/nlp-node.git#master",
-    "console-trace": "*"
-  }
-  ,"scripts":
-  {
+    "passport": "*",
+    "passport-oauth": "*"    
+  },
+  "scripts": {
     "start": "node app.js"
   }
 }
