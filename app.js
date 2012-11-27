@@ -9,7 +9,8 @@ var express = require('express')
   , http = require('http')
   , path = require('path')
   , everyauth = require('everyauth')
-  , init_everyauth = require('./init-everyauth.js');
+  , init_everyauth = require('./init-everyauth.js')
+  , request = require('request');
 
 var app = express();
 
@@ -36,6 +37,18 @@ app.configure('development', function(){
 
 app.get('/', routes.index);
 app.get('/users', user.list);
+
+app.get('/google/calendar/getlist', function(req, res){
+
+  if (!everyauth.google.user || !everyauth.google.user.accessToken)
+    return res.send('');
+
+  request.get('https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token='+everyauth.google.user.accessToken
+    , function(err, res2, body) { 
+      console.log(JSON.parse(body));
+      res.send(body);
+  });
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));

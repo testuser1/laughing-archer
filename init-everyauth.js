@@ -330,8 +330,10 @@ module.exports = function enableEveryAuth(everyauth) {
 	everyauth.google
 	  .appId(conf.google.clientId)
 	  .appSecret(conf.google.clientSecret)
-	  .scope('https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/ https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/tasks')
+	  .scope('https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/ https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/tasks https://www.googleapis.com/auth/calendar')
 	  .findOrCreateUser( function (sess, accessToken, extra, googleUser) {
+	  	console.log('GOT TOKEN', arguments);
+	  	googleUser.accessToken = accessToken; 
 	    googleUser.refreshToken = extra.refresh_token;
 	    googleUser.expiresIn = extra.expires_in;
 	    everyauth.google.user = googleUser;

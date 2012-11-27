@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <script>
+      function appendResults(text) {
+        var results = document.getElementById('results');
+        results.appendChild(document.createElement('P'));
+        results.appendChild(document.createTextNode(text));
+      }
+
+      function makeRequest() {
+        var request = gapi.client.urlshortener.url.get({
+          'shortUrl': 'http://goo.gl/fbsS'
+        });
+        request.execute(function(response) {
+          appendResults(response.longUrl);
+        });
+      }
+
+      function load() {
+        gapi.client.setApiKey('AIzaSyBDhvE5ML9LMtLnaaT0WkK5xJBpaRWsO2g');
+        gapi.client.load('urlshortener', 'v1', makeRequest);
+
+
+      }
+
+      function auth() {
+        var config = {
+          'client_id': '923743298413.apps.googleusercontent.com',
+          'scope': 'https://www.googleapis.com/auth/urlshortener https://www.googleapis.com/auth/userinfo.profile https://www.google.com/m8/feeds/ https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/tasks'
+        };
+        gapi.auth.authorize(config, function() {
+          console.log('login complete');
+          console.log(gapi.auth.getToken());
+
+          gapi.client.load('plus', 'v1', function() { 
+            console.log('loaded.'); 
+            var request = gapi.client.plus.activities.search({'query': 'Google+', 'orderBy': 'best'});
+            request.execute(function(resp) { console.log(resp); });
+
+          });          
+        });
+      }
+
+    </script>
+    <script src="https://apis.google.com/js/client.js?onload=load"></script>
+  </head>
+  <body>
+    <button onclick="auth();">Authorize</button>
+
+    <div id="results"></div>
+  </body>
+</html>
