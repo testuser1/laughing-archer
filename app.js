@@ -10,7 +10,8 @@ var express = require('express')
   , path = require('path')
   , everyauth = require('everyauth')
   , init_everyauth = require('./init-everyauth.js')
-  , request = require('request');
+  , request = require('request')
+  , sys = require('sys');
 
 var app = express();
 
@@ -38,11 +39,20 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
-app.get('/google/calendar/getlist', function(req, res){
+app.get('/google/*', function(req, res){
+  var url = req.url.replace('/google/', '').split('/');
+  //console.log()
+  res.send(sys.inspect(url));
+});
+
+// super useful, check this https://github.com/JimmyBoh/node-google-api
+// https://github.com/berryboy/google-calendar/blob/master/GoogleCalendar.js
+app.get('/1google/calendar/getlist', function(req, res){
 
   if (!everyauth.google.user || !everyauth.google.user.accessToken)
     return res.send('');
 
+  // https://github.com/mikeal/request
   request.get('https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token='+everyauth.google.user.accessToken
     , function(err, res2, body) { 
       console.log(JSON.parse(body));
