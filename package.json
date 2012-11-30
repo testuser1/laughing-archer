@@ -10,8 +10,7 @@
     "ejs": "*",
     "console-trace": "*",
     "everyauth": "git://github.com/bnoguchi/everyauth.git#express3",
-    "request": "*",
-    "node-google-api": "*"
+    "request": "*"
     ,"redis": "*"
     ,"connect-redis": "*"
   },
@@ -19,7 +18,8 @@
     "speakeasy-nlp": "*",
     "nlp-mode": "git://github.com/testuser1/nlp-node.git#master",
     "passport": "*",
-    "passport-oauth": "*"    
+    "passport-oauth": "*",
+    "node-google-api": "removed because the original one was buggy https://github.com/JimmyBoh/node-google-api"
   },
   "scripts": {
     "start": "node app.js"

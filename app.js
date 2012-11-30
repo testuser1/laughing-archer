@@ -46,7 +46,7 @@ app.get('/', routes.index);
 app.get('/users', user.list);
 
 app.get('/google*', function(req, res) {
-  console.log(req.session);
+  // console.log(req.session);
   var url = req._parsedUrl.pathname.replace('/google/', '').replace('/google', '').split('/');
   var api = app.set('google');
   //console.log()
@@ -61,15 +61,24 @@ app.get('/google*', function(req, res) {
   //   if (!obj) break;
   // }
   try {
-    if (url.length < 3) res.send('false');
-    var name = url[0], resource = url[1], method = url[2];
 
-    console.log(url, api[name][resource][method].vars, req.query);    
+    var name = url[0], resource = url[1], method = url[2], func;
     req.query.access_token = req.session.google.accessToken;///everyauth.google.user.accessToken;
-    
-    return api[name][resource][method](req.query, function(events) {
+
+    if (url.length < 3) {
+      console.log(api[name]);
+      if (typeof api[name] == 'function')
+        func = api[name];
+      else
+        return res.send('false');
+    } else {
+      func = api[name][resource][method];
+      console.log(url, api[name][resource][method].vars, req.query);    
+    }
+
+    return func(req.query, function(events) {
             res.send(sys.inspect(arguments, false, null));
-          });//sys.inspect(url));
+          });
   } catch(e) { console.log(e) };
   res.send('false');
 });
