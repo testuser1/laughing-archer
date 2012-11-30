@@ -53,7 +53,22 @@ app.get('/google*', function(req, res) {
   if (req.query.formatted)
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
   if (!url.length || (url.length == 1 && url[0]=='')) return res.send(sys.inspect(api, false, null));
-  return res.send(sys.inspect(url));
+
+  // var dir = ''
+  // var obj = api;
+  // for ( ;dir = url.shift(); ) {
+  //   obj = obj[dir];
+  //   if (!obj) break;
+  // }
+  try {
+    if (url.length < 3) res.send('false');
+    var name = url[0], resource = url[1], method = url[2];
+    console.log(api[name][resource][method])
+    return api[name][resource][method]({ access_token: everyauth.google.user.accessToken }, function(events) {
+            res.send(sys.inspect(arguments, false, null));
+          });//sys.inspect(url));
+  } catch(e) { console.log(e) };
+  res.send('false');
 });
 
 // https://github.com/berryboy/google-calendar/blob/master/GoogleCalendar.js
