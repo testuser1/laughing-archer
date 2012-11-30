@@ -11,7 +11,9 @@ var express = require('express')
   , everyauth = require('everyauth')
   , init_everyauth = require('./init-everyauth.js')
   , request = require('request')
-  , sys = require('sys');
+  , sys = require('sys')
+  , redis_store = require('connect-redis')(express)
+  , redis = require("redis").createClient();
 
 var app = express();
 
@@ -24,12 +26,16 @@ app.configure(function(){
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.cookieParser('your secret here'));
-  app.use(express.session());
+  app.use(express.session({
+    maxAge : new Date(Date.now() + 365*24*3600000) // 1y Session lifetime
+    , store: new redis_store({client: redis})
+  }));
   init_everyauth(everyauth);
   app.set('everyauth', everyauth);
   app.use(everyauth.middleware(app));
   app.use(app.router);
   app.use(express.static(path.join(__dirname, 'public')));
+
 });
 
 app.configure('development', function(){
@@ -39,13 +45,17 @@ app.configure('development', function(){
 app.get('/', routes.index);
 app.get('/users', user.list);
 
-app.get('/google/*', function(req, res){
-  var url = req.url.replace('/google/', '').split('/');
+app.get('/google*', function(req, res) {
+  console.log(req.session);
+  var url = req._parsedUrl.pathname.replace('/google/', '').replace('/google', '').split('/');
+  var api = app.set('google');
   //console.log()
-  res.send(sys.inspect(url));
+  if (req.query.formatted)
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  if (!url.length || (url.length == 1 && url[0]=='')) return res.send(sys.inspect(api, false, null));
+  return res.send(sys.inspect(url));
 });
 
-// super useful, check this https://github.com/JimmyBoh/node-google-api
 // https://github.com/berryboy/google-calendar/blob/master/GoogleCalendar.js
 app.get('/1google/calendar/getlist', function(req, res){
 
@@ -60,8 +70,36 @@ app.get('/1google/calendar/getlist', function(req, res){
   });
 });
 
+app.post('/auth/user', function(req, res){
+  if (req.session && req.session.user)
+    return res.send(req.session.user);
+  res.send({});
+});
+
+app.post('/auth/login', function(req, res){
+
+  var data = { 'assertion': req.body['assertion'], 'audience': 'http://local.example.com:3000' };
+  var resp = request.post('https://verifier.login.persona.org/verify', { form: data }, function(err, res2, body){
+    if (err) return res.status(500).send('');
+    // console.log('login', body);
+    var data = JSON.parse(body);
+    req.session.user = data;
+    console.log(req.session);
+    res.send(data);
+  });
+});
+ 
+app.post('/auth/logout', function(req, res){ 
+  req.session.user = null;
+  res.status(200).send('');
+  //res.redirect('/')
+});
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log("Express server listening on port " + app.get('port'));
 });
+
+var googleAPI = require('node-google-api')('AIzaSyBDhvE5ML9LMtLnaaT0WkK5xJBpaRWsO2g');
+googleAPI.build(function(api) { app.set('google', api); sys.log('got google api') });
 
 module.exports = app;

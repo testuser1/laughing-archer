@@ -10,7 +10,10 @@
     "ejs": "*",
     "console-trace": "*",
     "everyauth": "git://github.com/bnoguchi/everyauth.git#express3",
-    "request": "*"
+    "request": "*",
+    "node-google-api": "*"
+    ,"redis": "*"
+    ,"connect-redis": "*"
   },
   "might-be-useful-later": {
     "speakeasy-nlp": "*",
