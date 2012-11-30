@@ -63,8 +63,11 @@ app.get('/google*', function(req, res) {
   try {
     if (url.length < 3) res.send('false');
     var name = url[0], resource = url[1], method = url[2];
-    console.log(api[name][resource][method])
-    return api[name][resource][method]({ access_token: everyauth.google.user.accessToken }, function(events) {
+
+    console.log(url, api[name][resource][method].vars, req.query);    
+    req.query.access_token = req.session.google.accessToken;///everyauth.google.user.accessToken;
+    
+    return api[name][resource][method](req.query, function(events) {
             res.send(sys.inspect(arguments, false, null));
           });//sys.inspect(url));
   } catch(e) { console.log(e) };
