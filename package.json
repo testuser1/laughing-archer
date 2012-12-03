@@ -13,6 +13,7 @@
     "request": "*"
     ,"redis": "*"
     ,"connect-redis": "*"
+    ,"imap": "*"
   },
   "might-be-useful-later": {
     "speakeasy-nlp": "*",

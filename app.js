@@ -13,7 +13,9 @@ var express = require('express')
   , request = require('request')
   , sys = require('sys')
   , redis_store = require('connect-redis')(express)
-  , redis = require("redis").createClient();
+  , redis = require("redis").createClient()
+
+  ,ImapConnection = require('imap').ImapConnection;
 
 var app = express();
 
@@ -79,18 +81,85 @@ app.get('/google*', function(req, res) {
     return func(req.query, function(events) {
             res.send(sys.inspect(arguments, false, null));
           });
-  } catch(e) { console.log(e) };
+  } catch(e) { console.log(sys.inspect(e, false, null)) };
   res.send('false');
 });
 
-// https://github.com/berryboy/google-calendar/blob/master/GoogleCalendar.js
-app.get('/1google/calendar/getlist', function(req, res){
+var buildXOAuth2Token = function(user, accessToken){
+    var authData = [
+        "user=" + (user || ""),
+        "auth=Bearer " + accessToken,
+        "",
+        ""];
+    return new Buffer(authData.join("\x01"), "utf-8").toString("base64");
+};
 
-  if (!everyauth.google.user || !everyauth.google.user.accessToken)
+
+// https://github.com/mscdex/node-imap
+app.get('/gmail', function(req, res){
+  console.log(req.session, req.session.google.accessToken);//, req.session.auth.google.user);
+  //return res.send('');
+  function die() {
+    console.log('DIE!');
+    throw 'die';
+  }
+  var imap = new ImapConnection({
+      username: req.session.google.email,
+      xoauth2: buildXOAuth2Token(req.session.google.email, req.session.google.accessToken),
+      // username: 'mygmailname@gmail.com',
+      // password: 'mygmailpassword',
+      host: 'imap.gmail.com',
+      port: 993,
+      secure: true,
+      debug: console.log
+    });
+
+  function openInbox(cb) {
+    imap.connect(function(err) {
+      if (err) die(err);
+      imap.openBox('INBOX', false, cb);
+    });
+  }
+  var out = [];
+  function show(msg) {
+    out.push(msg);
+  }
+
+  openInbox(function(err, mailbox) {
+    if (err) die(err);
+    imap.search([ 'UNSEEN', ['SINCE', 'May 20, 2010'] ], function(err, results) {
+      if (err) die(err);
+      var fetch = imap.fetch(results, {
+        request: {
+          headers: ['from', 'to', 'subject', 'date']
+          //,body: true
+        }
+      });
+      fetch.on('message', function(msg) {
+        console.log('Got a message with sequence number ' + msg.seqno);
+        msg.on('end', function() {
+          // msg.headers is now an object containing the requested headers ...
+          console.log('Finished message. Headers ' + show(msg));
+        });
+      });
+      fetch.on('end', function() {
+        console.log('Done fetching all messages!');
+        imap.logout();
+        res.send(out);
+      });
+    });
+  });  
+});
+
+
+
+app.get('/getgoogle', function(req, res){
+console.log(req.session.google.accessToken)
+  if ((!everyauth.google.user || !everyauth.google.user.accessToken) && (!req.session.google || !req.session.google.accessToken))
     return res.send('');
 
   // https://github.com/mikeal/request
-  request.get('https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token='+everyauth.google.user.accessToken
+  request.get('https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token='+req.session.google.accessToken
     , function(err, res2, body) { 
       console.log(JSON.parse(body));
       res.send(body);
